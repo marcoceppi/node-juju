@@ -1,4 +1,6 @@
-var exec = function(container, opts, cb)
+var exec = require('child_process').exec;
+
+var run = function(container, opts, cb)
 {
 	config = { env: process.env, timeout: 240000 };
 	config.env.HOME = container;
@@ -37,7 +39,7 @@ exports.status = function(container, job, cb)
 {
 	opts = {e: job.environment, format: "json"};
 
-	exec(container, command, opts, function(error, results)
+	run(container, command, opts, function(error, results)
 	{
 		results = results || JSON.stringify({});
 		results = JSON.parse(results);
@@ -62,7 +64,7 @@ exports.status = function(container, job, cb)
 		redisClient.HMSET(job.user+':'+job.environment+':'+job.action, data, function(err, res){});
 
 		opts.format = 'png';
-		juju.exec(container, command, opts, function(error, results)
+		run(container, command, opts, function(error, results)
 		{
 			if( !error )
 			{
@@ -81,7 +83,7 @@ exports.bootstrap = function(container, job, cb)
 {
 	opts = {e: job.environment};
 
-	exec(container, command, opts, function(error, results)
+	run(container, command, opts, function(error, results)
 	{
 		cb(error, container, job);
 	});
