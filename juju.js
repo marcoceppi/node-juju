@@ -69,12 +69,9 @@ exports.status = function(container, job, cb)
 			if( !error )
 			{
 				redisClient.SET(job.user+':'+job.environment+':layout', results);
-				cb(null, container, job);
 			}
-			else
-			{
-				cb(error, container, job);
-			}
+
+			cb(error, container, job);
 		});
 	});
 }
