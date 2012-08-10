@@ -1,4 +1,4 @@
-var exec = 	function(container, opts, cb)
+var exec = function(container, opts, cb)
 {
 	config = { env: process.env, timeout: 240000 };
 	config.env.HOME = container;
