@@ -1,17 +1,49 @@
-var exec = require('child_process').exec;
+var exec = require('child_process').exec,
+	spawn = require('child_process').spawn,
+	fs = require('fs');
 
-var run = function(container, opts, cb)
+var run = function(container, command, opts, cb)
 {
-	config = { env: process.env, timeout: 240000 };
+	config = { cwd: container, env: process.env };
 	config.env.HOME = container;
-	console.log('juju '+command+' '+arguments(opts));
-	exec('juju '+command+' '+arguments(opts), config, function(err_arr, results, err_str)
-	{
-		cb(err_arr, results);
-	});
-}
+	console.log('juju '+command+' '+build_args(opts));
 
-var arguments = function(args)
+	if( opts.format && opts.format == 'png' )
+	{
+		// TODO: Refactor this, we shouldn't have to write to a file, but
+		//       I really don't know enough about streams, buffers, and types
+		//       to do more with this right now.
+		mpoch = new Date().getTime();
+		var streamFileName = container + '/' + mpoch + '.png'
+		var streamFile = fs.createWriteStream(streamFileName);
+		var runner = spawn('juju', ['status'].concat(build_args(opts).split(" ")), config);
+		runner.stdout.on('data', function(data) { streamFile.write(data); });
+		runner.stdout.on('end', function(data) { streamFile.end(); });
+		//runner.stderr.on('data', function(data) { console.log(data.toString()); });
+		runner.on('exit', function(code)
+		{
+			if( code != 0 )
+			{
+				cb('Juju cmd error!', streamFileName);
+			}
+			else
+			{
+				cb(null, streamFileName);
+			}
+		});
+	}
+	else
+	{
+		config.timeout = 240000;
+
+		exec('juju '+command+' '+build_args(opts), config, function(err_arr, results, err_str)
+		{
+			cb(err_arr, results);
+		});
+	}
+};
+
+var build_args = function(args)
 {
 	args_s = "";
 	for(var key in args)
@@ -39,7 +71,7 @@ exports.status = function(container, job, redis, cb)
 {
 	opts = {e: job.environment, format: "json"};
 
-	run(container, command, opts, function(error, results)
+	run(container, 'status', opts, function(error, results)
 	{
 		results = results || JSON.stringify({});
 		results = JSON.parse(results);
@@ -61,14 +93,18 @@ exports.status = function(container, job, redis, cb)
 		}
 
 		// Do we even need a callback?
-		redisClient.HMSET(job.user+':'+job.environment+':'+job.action, data, function(err, res){});
+		redis.HMSET(job.user+':'+job.environment+':'+job.action, data, function(err, res){});
 
 		opts.format = 'png';
-		run(container, command, opts, function(error, results)
+		run(container, 'status', opts, function(error, results)
 		{
 			if( !error )
 			{
-				redisClient.SET(job.user+':'+job.environment+':layout', results);
+				fs.readFile(results, function(err, data)
+				{
+					redis.SET(job.user+':'+job.environment+':layout', data);
+					fs.unlink(results);
+				});
 			}
 
 			cb(error, container, job);
@@ -80,7 +116,7 @@ exports.bootstrap = function(container, job, redis, cb)
 {
 	opts = {e: job.environment};
 
-	run(container, command, opts, function(error, results)
+	run(container, 'bootstrap', opts, function(error, results)
 	{
 		cb(error, container, job);
 	});
