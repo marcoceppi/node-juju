@@ -35,7 +35,7 @@ var arguments = function(args)
 	return args_s;
 }
 
-exports.status = function(container, job, cb)
+exports.status = function(container, job, redis, cb)
 {
 	opts = {e: job.environment, format: "json"};
 
@@ -76,7 +76,7 @@ exports.status = function(container, job, cb)
 	});
 }
 
-exports.bootstrap = function(container, job, cb)
+exports.bootstrap = function(container, job, redis, cb)
 {
 	opts = {e: job.environment};
 
