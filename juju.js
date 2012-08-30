@@ -118,7 +118,19 @@ exports.bootstrap = function(container, job, redis, cb)
 
 	run(container, 'bootstrap', opts, function(error, results)
 	{
+		job.action = 'status'
+		job.data = {}
 		cb(error, container, job);
 	});
 }
 
+exports.destroy_environment = function(container, job, redis, cb)
+{
+	opts = {e: job.environment};
+
+	run(container, 'destroy-enivronment', opts, function(error, results)
+	{
+		job = ( error ) ? job : null
+		cb(error, container, job);
+	});
+}
