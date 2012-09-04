@@ -71,6 +71,12 @@ exports.status = function(container, job, redis, cb)
 {
 	opts = {e: job.environment, format: "json"};
 
+	if( job.data )
+	{
+		opts.argv = job.data;
+	}
+
+
 	run(container, 'status', opts, function(error, results)
 	{
 		results = results || JSON.stringify({});
