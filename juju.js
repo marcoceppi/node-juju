@@ -1,6 +1,7 @@
 var exec = require('child_process').exec,
 	spawn = require('child_process').spawn,
-	fs = require('fs');
+	fs = require('fs'),
+	extend = require('node.extend');
 
 var run = function(container, command, opts, cb)
 {
@@ -67,76 +68,77 @@ var build_args = function(args)
 	return args_s;
 }
 
-exports.status = function(container, job, redis, cb)
+exports.layout = function(container, job, cb)
 {
+	job.data.format = 'png';
+	exports.status(container, job, cb);
+}
+
+exports.status = function(container, job, cb)
+{
+	// Defaults
 	opts = {e: job.environment, format: "json"};
-
-	if( job.data )
-	{
-		opts.argv = job.data;
-	}
-
+	opts = ( job.data ) ? extend(true, opts, job.data) : opts;
 
 	run(container, 'status', opts, function(error, results)
 	{
-		results = results || JSON.stringify({});
-		results = JSON.parse(results);
-
 		// Build a status object
 		if( error )
 		{
-			data = { bootstrapped: false, units: 0, services: 0, data: JSON.stringify(results) };
+			data = { bootstrapped: false, units: 0, services: 0, data: '' };
+			cb(error, container, job, data);
 		}
 		else
 		{
-			data =
+			if( opts.format == 'json' )
 			{
-				services: Object.keys(results.services).length,
-				units: Object.keys(results.machines).length,
-				bootstrapped: Object.keys(results.machines).length > 0,
-				data: JSON.stringify(results)
-			};
-		}
+				results = results || JSON.stringify({});
+				results = JSON.parse(results);
 
-		// Do we even need a callback?
-		redis.HMSET(job.user+':'+job.environment+':'+job.action, data, function(err, res){});
+				data =
+				{
+					services: Object.keys(results.services).length,
+					units: Object.keys(results.machines).length,
+					bootstrapped: Object.keys(results.machines).length > 0,
+					data: JSON.stringify(results)
+				};
 
-		opts.format = 'png';
-		run(container, 'status', opts, function(error, results)
-		{
-			if( !error )
+				cb(error, container, job, data);
+			}
+			else if( opts.format == 'png' )
 			{
 				fs.readFile(results, function(err, data)
 				{
-					redis.SET(job.user+':'+job.environment+':layout', data);
 					fs.unlink(results);
+					cb(error, container, job, data);
 				});
 			}
-
-			cb(error, container, job);
-		});
+			else
+			{
+				cb('Not a valid format', container, job, null);
+			}
+		}
 	});
 }
 
-exports.bootstrap = function(container, job, redis, cb)
+exports.bootstrap = function(container, job, cb)
 {
 	opts = {e: job.environment};
+	opts = ( job.data ) ? extend(true, opts, job.data) : opts;
 
 	run(container, 'bootstrap', opts, function(error, results)
 	{
-		job.action = 'status'
-		job.data = {}
 		cb(error, container, job);
 	});
 }
 
-exports.destroy_environment = function(container, job, redis, cb)
+exports.destroy_environment = function(container, job, cb)
 {
 	opts = {e: job.environment};
+	opts = ( job.data ) ? extend(true, opts, job.data) : opts;
 
 	run(container, 'destroy-enivronment', opts, function(error, results)
 	{
-		job = ( error ) ? job : null
 		cb(error, container, job);
 	});
 }
