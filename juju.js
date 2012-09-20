@@ -3,6 +3,41 @@ var exec = require('child_process').exec,
 	fs = require('fs'),
 	extend = require('node.extend');
 
+
+/**
+ * TODO, turn this whole thing in to a prototyped object
+ * var juju = require('juju');
+ *
+ * env = juju.bootstrap('env_name');
+ * env.status();
+ * env.deploy(charm);
+ * env.destroy();
+ */
+
+var Juju = function(options)
+{
+	// Environments can be JSON or Yaml, need to check
+	options = (typeof options == "object") ? options : null;
+
+	this.environments = environments;
+}
+
+/**
+ * Bootstrap
+ *
+ * If a callback is provided, bootstrap will loop over status until the
+ * environment is set up.
+ *
+ */
+Juju.prototype.bootstrap = function(environment, options, cb)
+{
+	
+}
+
+Juju.prototype.status
+module.exports = Juju;
+
+
 var run = function(container, command, opts, cb)
 {
 	config = { cwd: container, env: process.env };
