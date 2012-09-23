@@ -1,0 +1,21 @@
+{
+  "name": "juju",
+  "version": "0.0.1",
+  "author": "Marco Ceppi <marco@ceppi.net>",
+  "description": "a wrapper for Juju, a service orchestration tool",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/marcoceppi/node-juju.git"
+  },
+  "keywords": [
+    "juju",
+    "cloud",
+    "charm"
+  ],
+  "dependencies": {
+    "node.extend": "*"
+  },
+  "engines": {
+    "node": ">=0.6"
+  }
+}
