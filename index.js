@@ -137,6 +137,16 @@ Juju.prototype.destroy_environment = function(opts, cb)
 	});
 }
 
+/**
+ * Destroy Service
+ *
+ * Destroy the specified service
+ */
+Juju.prototype.destroy_service = function()
+{
+	
+}
+
 Juju.prototype._run = function(subcommand, opts, cb)
 {
 	config = { cwd: container, env: process.env };
