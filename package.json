@@ -18,7 +18,6 @@
   },
   "dependencies": {
     "node.extend": "*",
-    "nodeunit": ">=0.7.4"
   },
   "engines": {
     "node": ">=0.6"

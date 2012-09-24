@@ -1,4 +1,4 @@
 #!/usr/bin/env node
 
-var reporter = require('nodeunit').reporters.default;
-reporter.run(['tests']);
+var reporter = require('nodeunit').reporters.verbose;
+reporter.run(['tests', 'tests/subs']);
