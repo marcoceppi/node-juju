@@ -3,82 +3,6 @@ var exec = require('child_process').exec,
 	fs = require('fs'),
 	extend = require('node.extend');
 
-
-/**
- * TODO, turn this whole thing in to a prototyped object
- * var juju = require('juju');
- *
- * env = juju.bootstrap('env_name');
- * env.status();
- * env.deploy(charm);
- * env.destroy();
- */
-
-var Juju = function(options)
-{
-	// Environments can be JSON or Yaml, need to check
-	options = (typeof options == "object") ? options : null;
-
-	this.environments = environments;
-}
-
-/**
- * Bootstrap
- *
- * If a callback is provided, bootstrap will loop over status until the
- * environment is set up.
- *
- */
-Juju.prototype.bootstrap = function(environment, options, cb)
-{
-	
-}
-
-Juju.prototype.status
-module.exports = Juju;
-
-
-var run = function(container, command, opts, cb)
-{
-	config = { cwd: container, env: process.env };
-	config.env.HOME = container;
-	console.log('juju '+command+' '+build_args(opts));
-
-	if( opts.format && opts.format == 'png' )
-	{
-		// TODO: Refactor this, we shouldn't have to write to a file, but
-		//       I really don't know enough about streams, buffers, and types
-		//       to do more with this right now.
-		mpoch = new Date().getTime();
-		var streamFileName = container + '/' + mpoch + '.png'
-		var streamFile = fs.createWriteStream(streamFileName);
-		var runner = spawn('juju', ['status'].concat(build_args(opts).split(" ")), config);
-		runner.stdout.on('data', function(data) { streamFile.write(data); });
-		runner.stdout.on('end', function(data) { streamFile.end(); });
-		//runner.stderr.on('data', function(data) { console.log(data.toString()); });
-		runner.on('exit', function(code)
-		{
-			if( code != 0 )
-			{
-				cb('Juju cmd error!', streamFileName);
-			}
-			else
-			{
-				cb(null, streamFileName);
-			}
-		});
-	}
-	else
-	{
-		config.timeout = 240000;
-
-		exec('juju '+command+' '+build_args(opts), config, function(err_arr, results, err_str)
-		{
-			cb(err_arr, results);
-		});
-	}
-};
-
 var build_args = function(args)
 {
 	args_s = "";
@@ -103,25 +27,63 @@ var build_args = function(args)
 	return args_s;
 }
 
-exports.layout = function(container, job, cb)
+var Juju = function(environment)
 {
-	job.data.format = 'png';
-	exports.status(container, job, cb);
+	this.environment = environment;
 }
 
-exports.status = function(container, job, cb)
+/**
+ * Bootstrap
+ *
+ * If a callback is provided, bootstrap will loop over status until the
+ * environment is set up.
+ *
+ * @param opts optional - hash of key: value to be converted to command line args
+ * @param cb - Callback
+ */
+Juju.prototype.bootstrap = function(opts, cb)
 {
-	// Defaults
-	opts = {e: job.environment, format: "json"};
-	opts = ( job.data ) ? extend(true, opts, job.data) : opts;
+	default_opts = {e: this.environment};
+	opts = ( opts ) ? extend(true, default_opts, opts) : default_opts;
 
-	run(container, 'status', opts, function(error, results)
+	this._run('bootstrap', opts, function(err, results)
+	{
+		cb(err);
+	});
+}
+
+/**
+ * Layout
+ *
+ * This is here for legacy support. It's status with --format=png
+ */
+Juju.prototype.layout = function(opts, cb)
+{
+	opts.format = 'png';
+	this.status(opts, cb);
+}
+
+/**
+ * Status
+ *
+ * Poll Juju for a status of this.environment
+ *
+ * @param opts optional - hash of key: value to be converted to cli args
+ * @param cb - Callback
+ */
+Juju.prototype.status = function(opts, cb)
+{
+	//job.data = opts
+	default_opts = {e: this.environment, format: "json"};
+	opts = ( opts ) ? extend(true, default_opts, opts) : default_opts;
+
+	this._run('status', opts, function(err, results)
 	{
 		// Build a status object
-		if( error )
+		if( err )
 		{
 			data = { bootstrapped: false, units: 0, services: 0, data: '' };
-			cb(error, container, job, data);
+			cb(err, data);
 		}
 		else
 		{
@@ -138,7 +100,7 @@ exports.status = function(container, job, cb)
 					data: JSON.stringify(results)
 				};
 
-				cb(error, container, job, data);
+				cb(error, data);
 			}
 			else if( opts.format == 'png' )
 			{
@@ -156,24 +118,67 @@ exports.status = function(container, job, cb)
 	});
 }
 
-exports.bootstrap = function(container, job, cb)
+/**
+ * Destroy Environment
+ *
+ * Destroy the current this.environment
+ *
+ * @param opts optional - hash of key: value to be converted to cli args
+ * @param cb - Callback
+ */
+Juju.prototype.destroy_environment = function(opts, cb)
 {
-	opts = {e: job.environment};
-	opts = ( job.data ) ? extend(true, opts, job.data) : opts;
+	default_opts = {e: this.environment};
+	opts = ( opts ) ? extend(true, default_opts, opts) : default_opts;
 
-	run(container, 'bootstrap', opts, function(error, results)
+	run(container, 'destroy-enivronment', opts, function(err, result)
 	{
-		cb(error, container, job);
+		cb(err);
 	});
 }
 
-exports.destroy_environment = function(container, job, cb)
+Juju.prototype._run = function(subcommand, opts, cb)
 {
-	opts = {e: job.environment};
-	opts = ( job.data ) ? extend(true, opts, job.data) : opts;
+	config = { cwd: container, env: process.env };
+	config.env.HOME = container;
+	console.log('juju '+subcommand+' '+build_args(opts));
 
-	run(container, 'destroy-enivronment', opts, function(error, results)
+	if( opts.format && opts.format == 'png' )
 	{
-		cb(error, container, job);
-	});
+		// TODO: Refactor this, we shouldn't have to write to a file, but
+		//       I really don't know enough about streams, buffers, and types
+		//       to do more with this right now.
+		mpoch = new Date().getTime();
+		var streamFileName = container + '/' + mpoch + '.png'
+		var streamFile = fs.createWriteStream(streamFileName);
+		var runner = this._spawn('juju', ['status'].concat(build_args(opts).split(" ")), config);
+		runner.stdout.on('data', function(data) { streamFile.write(data); });
+		runner.stdout.on('end', function(data) { streamFile.end(); });
+		//runner.stderr.on('data', function(data) { console.log(data.toString()); });
+		runner.on('exit', function(code)
+		{
+			if( code != 0 )
+			{
+				cb('Juju cmd error!', streamFileName);
+			}
+			else
+			{
+				cb(null, streamFileName);
+			}
+		});
+	}
+	else
+	{
+		config.timeout = 240000;
+
+		this._exec('juju '+subcommand+' '+build_args(opts), config, function(err_arr, results, err_str)
+		{
+			cb(err_arr, results);
+		});
+	}
 }
+
+Juju.prototype._exec = exec;
+Juju.prototype._spawn = spawn;
+
+module.exports = Juju;
