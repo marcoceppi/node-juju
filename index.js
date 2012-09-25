@@ -50,7 +50,8 @@ var Juju = function(environment, format)
 Juju.prototype.bootstrap = function(opts, cb)
 {
 	default_opts = {e: this.environment};
-	opts = ( opts ) ? extend(true, default_opts, opts) : default_opts;
+	cb = cb || (typeof opts == 'function') ? opts : function() {};
+	opts = (typeof opts == 'object') ? extend(true, default_opts, opts) : default_opts;
 
 	this._run('bootstrap', opts, function(err, results)
 	{
@@ -189,52 +190,58 @@ Juju.prototype.remove_unit = function()
  */
 Juju.prototype.resolved = function(unit, relation, retry, cb)
 {
-	cb = cb || (typeof opts == "function") opts : function() {};
+	cb = cb || (typeof opts == "function") ? opts : function() {};
 	retry = (typeof retry == "boolean") ? retry : (typeof relation == "boolean") ? retry : false;
 	relation = (typeof relation == "string") ? relation : null;
 	this._run('resolved', {retry: retry, argv: [unit, relation]}, cb);
 }
 
-Juju.prototype._run = function(subcommand, opts, cb)
+Juju.prototype.resolve = Juju.prototype.resolved;
+
+Juju.prototype._run = function(subcommand, opts, env, cb)
 {
+	cb = cb || (typeof env == "function") ? env : function() {};
 	default_opts = {format: this.format};
+	// Need to extend default opts with opts
 	config = { cwd: container, env: process.env };
 	config.env.HOME = container;
-	console.log('juju '+subcommand+' '+build_args(opts));
 
-	if( opts.format && opts.format == 'png' )
+	process.nextTick(function()
 	{
-		// TODO: Refactor this, we shouldn't have to write to a file, but
-		//       I really don't know enough about streams, buffers, and types
-		//       to do more with this right now.
-		mpoch = new Date().getTime();
-		var streamFileName = container + '/' + mpoch + '.png'
-		var streamFile = fs.createWriteStream(streamFileName);
-		var runner = this._spawn('juju', ['status'].concat(build_args(opts).split(" ")), config);
-		runner.stdout.on('data', function(data) { streamFile.write(data); });
-		runner.stdout.on('end', function(data) { streamFile.end(); });
-		//runner.stderr.on('data', function(data) { console.log(data.toString()); });
-		runner.on('exit', function(code)
+		if( opts.format && opts.format == 'png' )
 		{
-			if( code != 0 )
+			// TODO: Refactor this, we shouldn't have to write to a file, but
+			//       I really don't know enough about streams, buffers, and types
+			//       to do more with this right now.
+			mpoch = new Date().getTime();
+			var streamFileName = container + '/' + mpoch + '.png'
+			var streamFile = fs.createWriteStream(streamFileName);
+			var runner = this._spawn('juju', ['status'].concat(build_args(opts).split(" ")), config);
+			runner.stdout.on('data', function(data) { streamFile.write(data); });
+			runner.stdout.on('end', function(data) { streamFile.end(); });
+			//runner.stderr.on('data', function(data) { console.log(data.toString()); });
+			runner.on('exit', function(code)
 			{
-				cb('Juju cmd error!', streamFileName);
-			}
-			else
-			{
-				cb(null, streamFileName);
-			}
-		});
-	}
-	else
-	{
-		config.timeout = 240000;
+				if( code != 0 )
+				{
+					cb('Juju cmd error!', streamFileName);
+				}
+				else
+				{
+					cb(null, streamFileName);
+				}
+			});
+		}
+		else
+		{
+			config.timeout = 240000;
 
-		this._exec('juju '+subcommand+' '+build_args(opts), config, function(err_arr, results, err_str)
-		{
-			cb(err_arr, results);
-		});
-	}
+			this._exec('juju '+subcommand+' '+build_args(opts), config, function(err_arr, results, err_str)
+			{
+				cb(err_arr, results);
+			});
+		}
+	});
 }
 
 Juju.prototype._exec = exec;
