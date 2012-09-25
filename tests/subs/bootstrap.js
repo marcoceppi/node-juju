@@ -1,5 +1,4 @@
-var csreq = require('covershot').require.bind(null, require),
-	Juju  = csreq('../../../node-juju');
+var Juju = require('../../index.js');
 
 
 exports.setUp = function(cb)
