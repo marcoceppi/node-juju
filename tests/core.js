@@ -69,3 +69,21 @@ exports.actions =
 		test.done();
 	}
 }
+
+exports.extras =
+{
+	setUp: function(cb)
+	{
+		juju = new Juju(null);
+		cb();
+	},
+	tearDown: function(cb)
+	{
+		cb();
+	},
+	watch: function(test)
+	{
+		test.ok('watch' in juju, 'watch command exists');
+		test.done();
+	}
+}
