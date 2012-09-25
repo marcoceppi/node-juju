@@ -32,8 +32,9 @@ var build_args = function(args)
 	return args_s;
 }
 
-var Juju = function(environment)
+var Juju = function(environment, format)
 {
+	this.format = format || 'json';
 	this.environment = environment;
 }
 
@@ -186,16 +187,17 @@ Juju.prototype.remove_unit = function()
  *
  * Resolve errors
  */
-Juju.prototype.resolved = function(unit, relation, opts, cb)
+Juju.prototype.resolved = function(unit, relation, retry, cb)
 {
 	cb = cb || (typeof opts == "function") opts : function() {};
-	opts = (opts && typeof opts == "object") ? opts : (relation && typeof relation == "object") ? relation : {};
+	retry = (typeof retry == "boolean") ? retry : (typeof relation == "boolean") ? retry : false;
 	relation = (typeof relation == "string") ? relation : null;
-	this._run('resolved', {n: incrby, argv: service});
+	this._run('resolved', {retry: retry, argv: [unit, relation]}, cb);
 }
 
 Juju.prototype._run = function(subcommand, opts, cb)
 {
+	default_opts = {format: this.format};
 	config = { cwd: container, env: process.env };
 	config.env.HOME = container;
 	console.log('juju '+subcommand+' '+build_args(opts));
