@@ -18,7 +18,8 @@ var build_args = function(args)
 
 			args_s += ((args_s) ? " " : "")+argv;
 		}
-		else
+		else if( typeof args[key] != 'boolean' || 
+			(typeof args[key] == 'boolean' && args[key] === true) )
 		{
 			// I do this because I hate you.
 			args_s += ((args_s) ? " " : "")+
