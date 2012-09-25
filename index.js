@@ -137,15 +137,27 @@ Juju.prototype.destroy_environment = function(opts, cb)
 	});
 }
 
+Juju.prototype.destroy = Juju.prototype.destroy_environment;
+
 /**
  * Destroy Service
  *
  * Destroy the specified service
+ *
+ * @param service/unit, ...
+ * @param cb - Callback
  */
 Juju.prototype.destroy_service = function()
 {
 	
 }
+
+/**
+ * 
+ * 
+ */
+
+
 
 Juju.prototype._run = function(subcommand, opts, cb)
 {
