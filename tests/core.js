@@ -1,6 +1,5 @@
-var fs    = require('fs'),
-	csreq = require('covershot').require.bind(null, require),
-	Juju  = csreq('../../node-juju');
+var fs  = require('fs'),
+	Juju = require('../index');
 
 exports.testJujuExists = function(test)
 {

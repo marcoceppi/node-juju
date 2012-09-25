@@ -131,7 +131,7 @@ Juju.prototype.destroy_environment = function(opts, cb)
 	default_opts = {e: this.environment};
 	opts = ( opts ) ? extend(true, default_opts, opts) : default_opts;
 
-	run(container, 'destroy-enivronment', opts, function(err, result)
+	this._run(container, 'destroy-enivronment', opts, function(err, result)
 	{
 		cb(err);
 	});
@@ -145,6 +145,30 @@ Juju.prototype.destroy_environment = function(opts, cb)
 Juju.prototype.destroy_service = function()
 {
 	
+}
+
+/**
+ * Add Unit
+ *
+ * Increase the units
+ */
+Juju.prototype.add_unit = function(service, incrby, cb)
+{
+	cb = cb || (typeof incrby == "object") ? incrby : function() {};
+	incrby = (typeof incrby == "number") ? incrby : 1;
+
+	this._run('add-unit', {n: incrby, argv: service});
+}
+
+/**
+ * Remove Unit(s)
+ *
+ * Increase the units
+ */
+Juju.prototype.remove_unit = function()
+{
+	
+	this._run('remove-unit', {n: incrby, argv: service});
 }
 
 Juju.prototype._run = function(subcommand, opts, cb)
