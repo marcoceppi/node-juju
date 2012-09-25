@@ -8,7 +8,7 @@ exports.testJujuExists = function(test)
 	test.done();
 }
 
-exports.subcommand =
+exports.actions =
 {
 	setUp: function(cb)
 	{
@@ -19,49 +19,54 @@ exports.subcommand =
 	{
 		cb();
 	},
-	bootstrap: function(test)
+	environment: function(test)
 	{
-		test.ok('bootstrap' in juju, 'bootstrap member exists');
+		test.expect(3);
+		test.ok('bootstrap' in juju, 'bootstrap command exists');
+		test.ok('destroy_environment' in juju, 'destroy-environment command exists');
+		test.ok('destroy' in juju, 'destroy command exists');
 		test.done();
 	},
 	status: function(test)
 	{
 		test.expect(2);
-		test.ok('status' in juju, 'status member exists');
-		test.ok('layout' in juju, 'layout member exists');
+		test.ok('status' in juju, 'status command exists');
+		test.ok('layout' in juju, 'layout command exists');
 		test.done();
 	},
-	destroy: function(test)
+	service: function(test)
 	{
 		test.expect(2);
-		test.ok('destroy_environment' in juju, 'destroy-environment member exists');
-		test.ok('destroy_service' in juju, 'destroy-service member exists');
+		test.ok('deploy' in juju, 'deploy command exists');
+		test.ok('destroy_service' in juju, 'destroy-service command exists');
 		test.done();
 	},
-	units: function(test)
+	unit: function(test)
 	{
-		test.expect(2);
-		test.ok('add_unit' in juju, 'add-unit member exists');
-		test.ok('remove_unit' in juju, 'remove-unit member exists');
+		test.expect(4);
+		test.ok('add_unit' in juju, 'add-unit command exists');
+		test.ok('remove_unit' in juju, 'remove-unit command exists');
+		test.ok('resolved' in juju, 'resolved command exists');
+		test.ok('resolve' in juju, 'resolve command exists');
 		test.done();
 	},
 	expose: function(test)
 	{
 		test.expect(2);
-		test.ok('expose' in juju, 'expose member exists');
-		test.ok('unexpose' in juju, 'unexpose member exists');
+		test.ok('expose' in juju, 'expose command exists');
+		test.ok('unexpose' in juju, 'unexpose command exists');
 		test.done();
 	},
 	relation: function(test)
 	{
 		test.expect(2);
-		test.ok('add_relation' in juju, 'add-relation member exists');
-		test.ok('remove_relation' in juju, 'remove-relation member exists');
+		test.ok('add_relation' in juju, 'add-relation command exists');
+		test.ok('remove_relation' in juju, 'remove-relation command exists');
 		test.done();
 	},
 	terminate_machine: function(test)
 	{
-		test.ok('terminate_machine' in juju, 'terminate-machine member exists');
+		test.ok('terminate_machine' in juju, 'terminate-machine command exists');
 		test.done();
 	}
 }
