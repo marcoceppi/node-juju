@@ -176,6 +176,19 @@ Juju.prototype.remove_unit = function()
 	this._run('remove-unit', {n: incrby, argv: service});
 }
 
+/**
+ * Resolved
+ *
+ * Resolve errors
+ */
+Juju.prototype.resolved = function(unit, relation, opts, cb)
+{
+	cb = cb || (typeof opts == "function") opts : function() {};
+	opts = (opts && typeof opts == "object") ? opts : (relation && typeof relation == "object") ? relation : {};
+	relation = (typeof relation == "string") ? relation : null;
+	this._run('resolved', {n: incrby, argv: service});
+}
+
 Juju.prototype._run = function(subcommand, opts, cb)
 {
 	config = { cwd: container, env: process.env };
