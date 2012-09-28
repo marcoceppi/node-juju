@@ -1,8 +1,9 @@
-var Juju = require('../../index.js');
-
+var Juju = require('../../index.js'),
+	fs = require('fs');
 
 exports.setUp = function(cb)
 {
+	
 	cb();
 }
 
@@ -16,6 +17,11 @@ exports.testJujuExists = function(test)
 	test.ok(true, "Juju exists, we can continue");
 	test.done();
 };
+
+exports.testJujuBootstrapFails = function(test)
+{
+	
+}
 
 /*
 exports.testJujuNotBootstrapped = function(test)
