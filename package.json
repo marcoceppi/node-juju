@@ -17,7 +17,8 @@
     "test": "node ./test"
   },
   "dependencies": {
-    "node.extend": "*"
+    "node.extend": "*",
+    "yamljs": "*"
   },
   "engines": {
     "node": ">=0.6"

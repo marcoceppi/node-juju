@@ -250,6 +250,87 @@ Juju.prototype.terminate_machine = function()
 	this._run('terminate-machine', {argv: arguments.join(' ')}, cb);
 }
 
+Juju.prototype.deploy = function(charm, service_name, opts, cb)
+{
+	// Whole bunch of detection is going to happen. service_name and opts
+	// are both optional. service_name is a string, opts is an "Object"
+	// and cb is a function. We need to verify that charm is _actually_
+	// a charm, which I hope to do this eventually with a Charm object
+	// but for now we just need some rudimentary detection. Juju will do 
+	// the rest for us.
+
+	// Find out where the cb is
+	cb = cb || (opts && typeof opts == 'function') ? opts : 
+		((service_name && typeof service_name == 'function') ? service_name : 
+			((charm && typeof charm == 'function') ? charm : function() {}));
+
+	if( typeof charm != 'string' )
+	{
+		return cb(new Error('Not a valid charm'));
+	}
+
+	// Find out if we have a service name, or if we have opts, or neither.
+	if( opts )
+	{
+		if( typeof opts != 'object' && service_name && typeof service_name == 'object' )
+		{
+			opts = service_name;
+			service_name = null;
+		}
+		else
+		{
+			opts = {};
+		}
+	}
+
+	// One day charm will be a Charm object that looks something like this:
+	// {
+	//	name: foo
+	//	repository: null // Or local path, Or lp branch
+	//	source: store // Or local, or lp
+	// }
+
+	// Why not make this an array sometime soon? (V);,,;(V)
+	opts.argv = charm;
+	opts.argv += (service_name) ? ' '+service_name : ''
+	// Hopefully all of the variables should be sorted by now.
+	this._run('deploy', opts, cb);
+}
+
+Juju.prototype.expose = function(service, cb)
+{
+	cb = cb || function() {};
+
+	if( !service || typeof service != 'string' )
+	{
+		return cb(new Error('Not a valid service'));
+	}
+
+	this._run('expose', {argv: service}, cb);
+}
+
+Juju.prototype.unexpose = function(service, cb)
+{
+	cb = cb || function() {};
+
+	if( !service || typeof service != 'string' )
+	{
+		return cb(new Error('Not a valid service'));
+	}
+
+	this._run('unexpose', {argv: service}, cb);
+}
+
+Juju.prototype.add_relation = function()
+{
+	
+}
+
+Juju.prototype.remove_relation = function()
+{
+	
+}
+
 Juju.prototype._run = function(subcommand, opts, cb)
 {
 	cb = cb || (typeof env == "function") ? env : function() {};
@@ -296,6 +377,17 @@ Juju.prototype._run = function(subcommand, opts, cb)
 		}
 	});
 }
+
+/**
+ * EXTRAS!
+ */
+
+/**
+ * Watch
+ */
+// Not sure if I want this to just return a promise, or if it should just
+// be like every other function here.
+Juju.prototype.watch = function(settings, cb) {}
 
 // Make these over-rideable for testing
 Juju.prototype._exec = exec;
