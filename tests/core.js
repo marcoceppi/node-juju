@@ -1,5 +1,5 @@
 var fs  = require('fs'),
-	Juju = require('../index');
+	Juju = require('../index.js', true);
 
 exports.testJujuExists = function(test)
 {
@@ -16,6 +16,7 @@ exports.actions =
 	},
 	tearDown: function(cb)
 	{
+		juju = null;
 		cb();
 	},
 	environment: function(test)

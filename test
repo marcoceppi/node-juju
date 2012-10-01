@@ -1,4 +1,41 @@
 #!/usr/bin/env node
 
-var reporter = require('nodeunit').reporters.verbose;
+var jsc = require('jscoverage'),
+	fs = require('fs'),
+	wrench = require('wrench'),
+	YAML = require('yamljs'),
+	reporter = require('nodeunit').reporters.verbose;
+// rewrite require function
+require = jsc.require(module);
+
+
+wrench.rmdirSyncRecursive('/tmp/node-juju-tests');
+wrench.mkdirSyncRecursive('/tmp/node-juju-tests/.juju', 0750);
+
+juju_envs = {
+	"default": "stupid",
+	"environments": {
+		"stupid": {
+			"type": "dummy",
+			"juju-origin": "ppa",
+			"default-series": "precise",
+		},
+		"idiot": {
+			"type": "dummy",
+			"juju-origin": "ppa",
+			"default-series": "precise"
+		},
+		"bad-env": {
+			"type": "ec2"
+		}
+	}
+};
+
+fs.writeFileSync('/tmp/node-juju-tests/.juju/environments.yaml', YAML.stringify(juju_envs, 3, 2));
+
 reporter.run(['tests', 'tests/subs']);
+
+process.on('exit',function()
+{
+	jsc.coverage();
+});

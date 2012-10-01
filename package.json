@@ -20,6 +20,10 @@
     "node.extend": "*",
     "yamljs": "*"
   },
+  "devDependencies": {
+    "jscoverage": "*",
+    "wrench": "*"
+  },
   "engines": {
     "node": ">=0.6"
   }

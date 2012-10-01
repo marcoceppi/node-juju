@@ -1,5 +1,4 @@
-var Juju = require('../../index.js'),
-	fs = require('fs');
+var Juju = require('../../index.js', true);
 
 exports.setUp = function(cb)
 {
