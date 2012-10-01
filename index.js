@@ -84,8 +84,9 @@ Juju.prototype.layout = function(opts, cb)
 Juju.prototype.status = function(opts, cb)
 {
 	//job.data = opts
-	default_opts = {e: this.environment, format: "json"};
-	opts = ( opts ) ? extend(true, default_opts, opts) : default_opts;
+	cb = cb || opts;
+	default_opts = {e: this.environment, format: this.format};
+	opts = ( opts && typeof opts == 'object' ) ? extend(true, default_opts, opts) : default_opts;
 
 	this._run('status', opts, function(err, results)
 	{
@@ -117,12 +118,12 @@ Juju.prototype.status = function(opts, cb)
 				fs.readFile(results, function(err, data)
 				{
 					fs.unlink(results);
-					cb(error, container, job, data);
+					cb(error, data);
 				});
 			}
 			else
 			{
-				cb('Not a valid format', container, job, null);
+				cb(new Error('Not a valid format'), null);
 			}
 		}
 	});
@@ -333,11 +334,10 @@ Juju.prototype.remove_relation = function()
 
 Juju.prototype._run = function(subcommand, opts, cb)
 {
-	cb = cb || (typeof env == "function") ? env : function() {};
 	default_opts = {format: this.format};
 	// Need to extend default opts with opts
-	config = {cwd: container, env: process.env};
-	config.env.HOME = container;
+	config = {"env": extend(true, process.env, this.env)};
+	config.cwd = (this.env.HOME) ? this.env.HOME : __dirname;
 
 	// Pretty sure this is where this goes...
 	process.nextTick(function()
@@ -348,9 +348,9 @@ Juju.prototype._run = function(subcommand, opts, cb)
 			//       I really don't know enough about streams, buffers, and types
 			//       to do more with this right now.
 			mpoch = new Date().getTime();
-			var streamFileName = container + '/' + mpoch + '.png'
-			var streamFile = fs.createWriteStream(streamFileName);
-			var runner = this._spawn('juju', ['status'].concat(build_args(opts).split(" ")), config);
+			streamFileName = config.cwd + '/' + mpoch + '.png'
+			streamFile = fs.createWriteStream(streamFileName);
+			var runner = Juju.prototype._spawn('juju', ['status'].concat(build_args(opts).split(" ")), config);
 			runner.stdout.on('data', function(data) { streamFile.write(data); });
 			runner.stdout.on('end', function(data) { streamFile.end(); });
 			//runner.stderr.on('data', function(data) { console.log(data.toString()); });
@@ -370,7 +370,7 @@ Juju.prototype._run = function(subcommand, opts, cb)
 		{
 			config.timeout = 240000;
 
-			this._exec('juju '+subcommand+' '+build_args(opts), config, function(err_arr, results, err_str)
+			Juju.prototype._exec('juju '+subcommand+' '+build_args(opts), config, function(err_arr, results, err_str)
 			{
 				cb(err_arr, results);
 			});
