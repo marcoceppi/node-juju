@@ -8,8 +8,11 @@ var jsc = require('jscoverage'),
 // rewrite require function
 require = jsc.require(module);
 
+if( fs.existsSync('/tmp/node-juju-tests') )
+{
+	wrench.rmdirSyncRecursive('/tmp/node-juju-tests');
+}
 
-wrench.rmdirSyncRecursive('/tmp/node-juju-tests');
 wrench.mkdirSyncRecursive('/tmp/node-juju-tests/.juju', 0750);
 
 juju_envs = {
