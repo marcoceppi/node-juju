@@ -26,7 +26,10 @@ juju_envs = {
 			"default-series": "precise"
 		},
 		"bad-env": {
-			"type": "ec2"
+			"type": "ec2",
+			"default-series": "precise",
+			"control-bucket": "test",
+			"admin-secret": "juju"
 		}
 	}
 };
