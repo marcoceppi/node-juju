@@ -44,4 +44,5 @@ reporter.run(['tests', 'tests/subs']);
 process.on('exit',function()
 {
 	jsc.coverage();
+	//jsc.coverageDetail();
 });
