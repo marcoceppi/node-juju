@@ -20,7 +20,7 @@ exports.bootstrap =
 		good_juju, invalid_juju, bad_juju = null;
 		cb();
 	},
-	testJujuBootstrapFails: function(test)
+	testFails: function(test)
 	{
 		test.expect(1);
 		bad_juju.bootstrap(function(err)
@@ -30,7 +30,7 @@ exports.bootstrap =
 		});
 		
 	},
-	testJujuBootstrapInvalidEnvironment: function(test)
+	testInvalidEnvironment: function(test)
 	{
 		test.expect(1);
 		invalid_juju.bootstrap(function(err)
@@ -39,7 +39,7 @@ exports.bootstrap =
 			test.done();
 		});
 	},
-	testJujuBootstrap: function(test)
+	testWorks: function(test)
 	{
 		test.expect(1);
 		good_juju.bootstrap(function(err)
@@ -70,7 +70,7 @@ exports.destroy =
 		good_juju, bad_juju = null;
 		cb();
 	},
-	testJujuDestroyEnvironmentFails: function(test)
+	testFails: function(test)
 	{
 		test.expect(1);
 		bad_juju.destroy(function(err)
@@ -79,7 +79,7 @@ exports.destroy =
 			test.done();
 		});
 	},
-	testJujuDestroyEnvironment: function(test)
+	testWorks: function(test)
 	{
 		test.expect(1);
 		good_juju.destroy(function(err)
