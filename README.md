@@ -60,7 +60,22 @@ hpcloud.deploy('wordpress', {n: 2}, function(err) {
 
 # API
 
-## Juju(environment, format='json')
+## Juju(environment, format='json', env={})
+
+Creates a new Juju object for the provided `environment`. Optional parameters include:
+
+* REQUIRED STRING `environment` - The environment name in HOME/.juju/environments.yaml
+* OPTIONAL STRING `format` - [json, yaml, png, svg, dot] the default being json
+* OPTIONAL OBJECT `env` - Environment over-rides, the most common being HOME, see [process.env](http://nodejs.org/api/process.html#process_process_env) and [environ(7)](http://manpages.ubuntu.com/manpages/precise/man7/environ.7.html)
+
+Example:
+
+```js
+var Juju = require('juju');
+
+my_juju = new Juju('my-juju-environment', 'yaml', {"HOME": "/tmp/juju"});
+```
+-`
 
 ## juju.add_relation()
 
@@ -68,8 +83,19 @@ hpcloud.deploy('wordpress', {n: 2}, function(err) {
 ## juju.add_unit()
 
 
-## juju.bootstrap()
+## juju.bootstrap(opts, cb)
 
+Bootstrap the selected environment.
+
+* OPTIONAL OBJECT `opts` - This is a key: pair of additional command line arguments for Juju.
+* OPTIONAL FUNCTION `cb` - Callback
+
+Example:
+
+```js
+my_juju.bootstrap(function(err) { if(err) { console.log('Oh no!', err); } else { console.log('Bootstrapped!'); } });
+```
+-`
 
 ## juju.destroy(), juju.destroy_environment()
 
