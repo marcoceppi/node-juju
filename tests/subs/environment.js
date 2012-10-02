@@ -1,43 +1,91 @@
 var Juju = require('../../index.js', true);
 
-exports.setUp = function(cb)
-{
-	// Create a dummy environment
-	juju = new Juju('stupid');
-	cb();
-}
-
-exports.tearDown = function(cb)
-{
-	juju = null;
-	cb();
-}
-
 exports.testJujuExists = function(test)
 {
 	test.ok(true, "Juju exists, we can continue");
 	test.done();
 }
 
-exports.testJujuBootstrapFails = function(test)
+exports.bootstrap = 
 {
-	test.expect(1);
-	bad_juju = new Juju('bad-env');
-	bad_juju.bootstrap(function(err)
+	setUp: function(cb)
 	{
-		test.notEqual(err, null, 'Make sure we actually get an error');
-		test.done();
-	});
-	
+		good_juju = new Juju('stupid', 'json', {HOME: '/tmp/node-juju-tests'});
+		invalid_juju = new Juju('stupid');
+		bad_juju = new Juju('bad-env');
+		cb();
+	},
+	tearDown: function(cb)
+	{
+		good_juju, invalid_juju, bad_juju = null;
+		cb();
+	},
+	testJujuBootstrapFails: function(test)
+	{
+		test.expect(1);
+		bad_juju.bootstrap(function(err)
+		{
+			test.notStrictEqual(err, null, 'Error when not able to bootstrap?');
+			test.done();
+		});
+		
+	},
+	testJujuBootstrapInvalidEnvironment: function(test)
+	{
+		test.expect(1);
+		invalid_juju.bootstrap(function(err)
+		{
+			test.notStrictEqual(err, null, 'Error on non-existent environment?');
+			test.done();
+		});
+	},
+	testJujuBootstrap: function(test)
+	{
+		test.expect(1);
+		good_juju.bootstrap(function(err)
+		{
+			test.strictEqual(err, null, 'A successful bootstrap?');
+			test.done();
+		});
+	}
 }
 
-exports.testJujuBootstrap = function(test)
+exports.destroy =
 {
-	test.expect(1);
-	juju.bootstrap(function(err)
+	setUp: function(cb)
 	{
-		test.strictEqual(err, null, 'successful bootstrap');
-		test.done();
-	});
-}
+		bad_juju = new Juju('bad-env');
+		good_juju = new Juju('stupid');
 
+		old_exec = good_juju._exec;
+		good_juju._exec = function(cmd, cfg, ncb)
+		{
+			old_exec("yes|"+cmd, cfg, ncb);
+		}
+
+		cb();
+	},
+	tearDown: function(cb)
+	{
+		good_juju, bad_juju = null;
+		cb();
+	},
+	testJujuDestroyEnvironmentFails: function(test)
+	{
+		test.expect(1);
+		bad_juju.destroy(function(err)
+		{
+			test.notStrictEqual(err, null, 'Failed to destroy a non-bootstrapped environment?');
+			test.done();
+		});
+	},
+	testJujuDestroyEnvironment: function(test)
+	{
+		test.expect(1);
+		good_juju.destroy(function(err)
+		{
+			test.strictEqual(err, null, 'Succesfully destroyed environment?');
+			test.done();
+		});
+	}
+}
