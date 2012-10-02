@@ -29,5 +29,4 @@ exports.testJujuStatusFails = function(test)
 		test.strictEqual(data.bootstrapped, false, 'Wrapper header is correct');
 		test.done();
 	});
-	
 }
