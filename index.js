@@ -69,7 +69,24 @@ Juju.prototype.bootstrap = function(opts, cb)
  */
 Juju.prototype.layout = function(opts, cb)
 {
-	opts.format = 'png';
+	if( opts )
+	{
+		if( typeof opts == 'object' )
+		{
+			opts.format = (!opts.format) ? 'png' : opts.format;
+		}
+		else if( typeof opts == 'function' )
+		{
+			cb = opts;
+			opts = {format: 'png'};
+		}
+	}
+	else
+	{
+		opts = {format: 'png'};
+		cb = function(){};
+	}
+
 	this.status(opts, cb);
 }
 
@@ -87,13 +104,12 @@ Juju.prototype.status = function(opts, cb)
 	cb = cb || opts;
 	default_opts = {e: this.environment, format: this.format};
 	opts = ( opts && typeof opts == 'object' ) ? extend(true, default_opts, opts) : default_opts;
-
 	this._run('status', opts, function(err, results)
 	{
 		// Build a status object
 		if( err )
 		{
-			data = { bootstrapped: false, units: 0, services: 0, data: '' };
+			data = (opts.format != 'png') ? { bootstrapped: false, units: 0, services: 0, data: '' } : null;
 			cb(err, data);
 		}
 		else

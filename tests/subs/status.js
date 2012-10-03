@@ -32,3 +32,29 @@ exports.status =
 		});
 	}
 }
+
+exports.layout =
+{
+	setUp: function(cb)
+	{
+		// I need to stub the entire spawn function, streams and all
+		// I'll do that later...
+		bad_juju = new Juju('bad-env');
+		cb();
+	},
+	tearDown: function(cb)
+	{
+		bad_juju = null;
+		cb();
+	},
+	testJujuLayoutFails: function(test)
+	{
+		test.expect(2);
+		bad_juju.layout(function(err, data)
+		{
+			test.notStrictEqual(err, null, 'Layout errored out');
+			test.strictEqual(data, null, 'No data is returned');
+			test.done();
+		});
+	}
+}
