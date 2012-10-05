@@ -12,9 +12,16 @@ var build_args = function(args)
 		if( key == 'argv' )
 		{
 			argv = "";
-			for(var el in args[key])
+			if( what.call(args[key]) == '[object Array]' )
 			{
-				argv += ((argv) ? " " : "")+args[key];
+				for(var el in args[key])
+				{
+					argv += ((argv) ? " " : "")+args[key];
+				}
+			}
+			else
+			{
+				argv = args[key];
 			}
 
 			args_s += ((args_s) ? " " : "")+argv;
