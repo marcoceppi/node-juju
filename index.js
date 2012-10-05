@@ -306,6 +306,11 @@ Juju.prototype.deploy = function(charm, service_name, opts, cb)
 			opts = {};
 		}
 	}
+	else
+	{
+		opts = {};
+		service_name = null;
+	}
 
 	// One day charm will be a Charm object that looks something like this:
 	// {
