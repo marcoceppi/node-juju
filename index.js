@@ -33,7 +33,7 @@ var build_args = function(args)
 			args_s += ((args_s) ? " " : "")+
 				((typeof key == "number") ? "" : 
 					((key.length == 1) ? "-" : "--"))+key+
-				((args[key] === true || args[key] === null) ? "" : "="+args[key]);
+				((args[key] === true || args[key] === null) ? "" : '="'+args[key]+'"');
 		}
 	}
 
