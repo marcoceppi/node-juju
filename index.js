@@ -188,7 +188,7 @@ Juju.prototype.destroy_service = function(service, cb)
 	{
 		if( typeof service == 'function' )
 		{
-			cb(new Error('No service defined'));
+			service(new Error('No service defined'));
 		}
 
 		// We tried to notify them if we could.

@@ -6,7 +6,7 @@ exports.testJujuExists = function(test)
 	test.done();
 }
 
-exports.bootstrap = 
+exports.deploy = 
 {
 	setUp: function(cb)
 	{
@@ -90,6 +90,44 @@ exports.bootstrap =
 		opts_juju.deploy('wordpress', {'constraints': 'instance-type=f1.fake'}, function(err)
 		{
 			test.strictEqual(err, null, 'Deploy charm with additional command line options');
+			test.done();
+		});
+	}
+}
+
+exports.destroy_service = 
+{
+	setUp: function(cb)
+	{
+		// Create dummy environments
+		good_juju = new Juju('stupid');
+
+		old_exec = good_juju._exec;
+		good_juju._exec = function(cmd, cfg, ncb)
+		{
+			return ncb(null, {});
+		}
+
+		cb();
+	},
+	tearDown: function(cb)
+	{
+		good_juju, bad_juju, service_name_juju, opts_juju = null;
+		cb();
+	},
+	testJujuDestroyService: function(test)
+	{
+		good_juju.destroy_service('wordpress', function(err)
+		{
+			test.strictEqual(err, null, 'We destroyed that service');
+			test.done();
+		});
+	},
+	testJujuDestroyServiceFails: function(test)
+	{
+		good_juju.destroy_service(function(err)
+		{
+			test.notStrictEqual(err, null, 'Expect an error on bad call');
 			test.done();
 		});
 	}
