@@ -205,7 +205,11 @@ Juju.prototype.destroy_service = function(service, cb)
  */
 Juju.prototype.add_unit = function(service, incrby, cb)
 {
-	cb = cb || (typeof incrby == "object") ? incrby : function() {};
+	if( !cb )
+	{
+		cb = (typeof incrby == "function") ? incrby : function() {};
+	}
+
 	incrby = (typeof incrby == "number") ? incrby : 1;
 
 	this._run('add-unit', {n: incrby, argv: service}, cb);
@@ -219,9 +223,11 @@ Juju.prototype.add_unit = function(service, incrby, cb)
 Juju.prototype.remove_unit = function(service, cb)
 {
 	cb = cb || function() {};
+
 	if( typeof service != 'string' )
 	{
-		return cb(new Error('Not a valid service'));
+		error = new Error('Not a valid service');
+		return (typeof service == 'function') ? service(error) : cb(error);
 	}
 
 	this._run('remove-unit', {argv: service}, cb);
@@ -234,8 +240,40 @@ Juju.prototype.remove_unit = function(service, cb)
  */
 Juju.prototype.resolved = function(unit, relation, retry, cb)
 {
-	cb = cb || (typeof opts == "function") ? opts : function() {};
-	retry = (typeof retry == "boolean") ? retry : (typeof relation == "boolean") ? retry : false;
+	// Lets find the callback.
+	if( !cb )
+	{
+		if( typeof retry == 'function' )
+		{
+			cb = retry;
+			retry = false;
+		}
+		else if( typeof relation == 'function' )
+		{
+			cb = relation;
+			relation = null;
+		}
+		else
+		{
+			cb = function(){};
+		}
+	}
+
+	if( typeof unit != "string" )
+	{
+		return cb(new Error('Not a valid unit'));
+	}
+
+	if( typeof retry != 'boolean' && typeof relation == 'boolean' )
+	{
+		retry = relation;
+		relation = null;
+	}
+	else if( typeof retry != 'boolean' )
+	{
+		retry = false;
+	}
+
 	relation = (typeof relation == "string") ? relation : null;
 
 	this._run('resolved', {retry: retry, argv: [unit, relation]}, cb);
