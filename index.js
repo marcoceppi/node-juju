@@ -288,7 +288,9 @@ Juju.prototype.terminate_machine = function()
 	// Check if the last argument is a callback. It better be but sometimes
 	// people are stupid and don't use callbacks. Just letting the code run
 	// wild, wind in it's hair, flowing...
-	potential_cb = arguments.pop();
+	var args = [].slice.apply(arguments);
+
+	potential_cb = args.pop();
 	if( typeof potential_cb == 'function' )
 	{
 		cb = potential_cb
@@ -297,23 +299,25 @@ Juju.prototype.terminate_machine = function()
 	{
 		cb = function(){};
 		// Put the record back
-		arguments.push(potential_cb);
+		args.push(potential_cb);
 	}
 
 	// Need _AT LEAST_ one machine to terminate
-	if( arguments.length < 1 )
+	if( args.length < 1 )
 	{
 		return cb(new Error('Need at least one machine to terminate'));
 	}
 
 	// If someone did Juju.terminate_machine([1, 2], cb) expect it.
-	if( arguments.length == 1 && what.call(arguments[0]) == '[object Array]' )
+	if( args.length == 1 && what.call(args[0]) == '[object Array]' )
 	{
-		arguments = arguments[0];
+		args = args[0];
 	}
 
-	this._run('terminate-machine', {argv: arguments.join(' ')}, cb);
+	this._run('terminate-machine', {argv: args.join(' ')}, cb);
 }
+
+Juju.prototype.terminate = Juju.prototype.terminate_machine;
 
 Juju.prototype.deploy = function(charm, service_name, opts, cb)
 {
