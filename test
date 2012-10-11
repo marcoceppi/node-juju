@@ -38,11 +38,18 @@ juju_envs = {
 };
 
 fs.writeFileSync('/tmp/node-juju-tests/.juju/environments.yaml', YAML.stringify(juju_envs, 3, 2));
-
-reporter.run(['tests', 'tests/subs']);
-
-process.on('exit',function()
+var args = process.argv.slice(2);
+if( args.length > 0 )
 {
-	jsc.coverage();
-	//jsc.coverageDetail();
-});
+	reporter.run(args);
+}
+else
+{
+	reporter.run(['tests', 'tests/subs']);
+
+	process.on('exit',function()
+	{
+		jsc.coverage();
+		//jsc.coverageDetail();
+	});
+}
