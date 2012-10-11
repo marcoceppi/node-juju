@@ -377,7 +377,8 @@ Juju.prototype.expose = function(service, cb)
 
 	if( !service || typeof service != 'string' )
 	{
-		return cb(new Error('Not a valid service'));
+		var err = new Error('Not a valid service');
+		return (typeof service == 'function') ? service(err) : cb(err);
 	}
 
 	this._run('expose', {argv: service}, cb);
@@ -389,7 +390,8 @@ Juju.prototype.unexpose = function(service, cb)
 
 	if( !service || typeof service != 'string' )
 	{
-		return cb(new Error('Not a valid service'));
+		var err = new Error('Not a valid service');
+		return (typeof service == 'function') ? service(err) : cb(err);
 	}
 
 	this._run('unexpose', {argv: service}, cb);
