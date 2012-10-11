@@ -249,7 +249,6 @@ Juju.prototype.resolved = function(unit, relation, retry, cb)
 		if( typeof retry == 'function' )
 		{
 			cb = retry;
-			retry = false;
 		}
 		else if( typeof relation == 'function' )
 		{
