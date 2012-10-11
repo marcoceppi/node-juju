@@ -138,14 +138,14 @@ Juju.prototype.status = function(opts, cb)
 					data: JSON.stringify(results)
 				};
 
-				cb(error, data);
+				cb(err, data);
 			}
 			else if( opts.format == 'png' )
 			{
 				fs.readFile(results, function(err, data)
 				{
 					fs.unlink(results);
-					cb(error, data);
+					cb(err, data);
 				});
 			}
 			else
@@ -254,6 +254,10 @@ Juju.prototype.resolved = function(unit, relation, retry, cb)
 		{
 			cb = relation;
 			relation = null;
+		}
+		else if( typeof unit == 'function' )
+		{
+			cb = unit;
 		}
 		else
 		{

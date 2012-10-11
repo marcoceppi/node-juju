@@ -14,6 +14,11 @@ exports.status =
 		// Create a dummy environment
 		good_juju = new Juju('stupid');
 		bad_juju = new Juju('bad-env');
+
+		good_juju._exec = function(cmd, cfg, ncb)
+		{
+			ncb(null, JSON.stringify({machines: ["bootstrap"], services: {}}));
+		}
 		cb();
 	},
 	tearDown: function(cb)
@@ -28,6 +33,18 @@ exports.status =
 		{
 			test.notStrictEqual(err, null, 'Status errored out');
 			test.strictEqual(data.bootstrapped, false, 'Wrapper header is correct');
+			test.done();
+		});
+	},
+	testJujuStatus: function(test)
+	{
+		test.expect(4);
+		good_juju.status(function(err, data)
+		{
+			test.strictEqual(err, null, 'Status executed successfully');
+			test.strictEqual(data.bootstrapped, true, 'Wrapper header is correct');
+			test.strictEqual(data.services, 0, 'Wrapper service count is correct');
+			test.strictEqual(data.units, 1, 'Wrapper units count is correct');
 			test.done();
 		});
 	}
