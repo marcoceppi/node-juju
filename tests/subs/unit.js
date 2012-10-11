@@ -48,7 +48,6 @@ exports.add_unit =
 		test.expect(1);
 		good_juju.add_unit('wordpress', function(err, data)
 		{
-			console.log('done');
 			test.strictEqual(err, null, 'Can add a single unit');
 			test.done();
 		});
@@ -97,6 +96,96 @@ exports.remove_unit =
 		bad_juju.remove_unit(function(err)
 		{
 			test.notStrictEqual(err, null, 'Expect an error on bad call');
+			test.done();
+		});
+	}
+}
+
+exports.resolved =
+{
+	setUp: function(cb)
+	{
+		// Create dummy environments
+		basic_juju = new Juju('stupid');
+		retry_juju = new Juju('stupid');
+		resolve_juju = new Juju('stupid');
+		resolveretry_juju = new Juju('stupid');
+
+		basic_juju._exec = function(cmd, cfg, ncb)
+		{
+			if( cmd == 'juju resolved wordpress' )
+			{
+				return ncb(null, {});
+			}
+
+			return ncb(new Error('Command failed'));
+		}
+
+		retry_juju._exec = function(cmd, cfg, ncb)
+		{
+			if( cmd == 'juju resolved --retry wordpress' )
+			{
+				return ncb(null, {});
+			}
+
+			return ncb(new Error('Command failed'));
+		}
+
+		resolve_juju._exec = function(cmd, cfg, ncb)
+		{
+			if( cmd == 'juju resolved wordpress db' )
+			{
+				return ncb(null, {});
+			}
+
+			return ncb(new Error('Command failed'));
+		}
+
+		resolveretry_juju._exec = function(cmd, cfg, ncb)
+		{
+			if( cmd == 'juju resolved --retry wordpress db' )
+			{
+				return ncb(null, {});
+			}
+
+			return ncb(new Error('Command failed'));
+		}
+		cb();
+	},
+	tearDown: function(cb)
+	{
+		basic_juju, retry_juju, resolve_juju, resolveretry_juju = null;
+		cb();
+	},
+	testJujuResovled: function(test)
+	{
+		basic_juju.resolved('wordpress', function(err)
+		{
+			test.strictEqual(err, null, 'Resolve a service');
+			test.done();
+		});
+	},
+	testJujuResolvedRetry: function(test)
+	{
+		retry_juju.resolved('wordpress', true, function(err)
+		{
+			test.strictEqual(err, null, 'Resolve and retry a service');
+			test.done();
+		});
+	},
+	testJujuResolvedRelation: function(test)
+	{
+		resolve_juju.resolved('wordpress', 'db', function(err)
+		{
+			test.strictEqual(err, null, 'Resolve a services relation');
+			test.done();
+		});
+	},
+	testJujuResolvedRelationRetry: function(test)
+	{
+		resolveretry_juju.resolved('wordpress', 'db', true, function(err)
+		{
+			test.strictEqual(err, null, 'Resolve and retry a services relation');
 			test.done();
 		});
 	}
