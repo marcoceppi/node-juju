@@ -16,7 +16,10 @@ var build_args = function(args)
 			{
 				for(var el in args[key])
 				{
-					argv += ((argv) ? " " : "")+args[key];
+					if( args[key][el] )
+					{
+						argv += ((argv) ? " " : "") + args[key][el];
+					}
 				}
 			}
 			else
