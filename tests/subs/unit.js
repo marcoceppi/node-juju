@@ -188,5 +188,13 @@ exports.resolved =
 			test.strictEqual(err, null, 'Resolve and retry a services relation');
 			test.done();
 		});
+	},
+	testJujuResolvedFailOnlyCallback: function(test)
+	{
+		basic_juju.resolved(function(err)
+		{
+			test.notStrictEqual(err, null, 'Resolved fails because only a unit');
+			test.done();
+		});
 	}
 }
