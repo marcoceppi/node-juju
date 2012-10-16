@@ -401,12 +401,12 @@ Juju.prototype.unexpose = function(service, cb)
 	this._run('unexpose', {argv: service}, cb);
 }
 
-Juju.prototype.add_relation = function()
+Juju.prototype.add_relation = function(to, from, on, cb)
 {
 	
 }
 
-Juju.prototype.remove_relation = function()
+Juju.prototype.remove_relation = function(to, from, on, cb)
 {
 	
 }
