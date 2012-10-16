@@ -1,6 +1,6 @@
 {
   "name": "juju",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "author": "Marco Ceppi <marco@ceppi.net>",
   "description": "a wrapper for Juju, a service orchestration tool",
   "license": "GPLv3",
