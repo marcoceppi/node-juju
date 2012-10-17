@@ -32,6 +32,7 @@ These subcommands all require some interaction which isn't appropriate for this 
 Node-juju also providers the following extra commands:
 
  - watch
+ - layout
 
 Which are documented below under _extras_
 
@@ -81,7 +82,9 @@ my_juju = new Juju('my-juju-environment', 'json', {"HOME": "/tmp/juju"});
 
 ## juju.add_unit()
 
+Add additional n units
 
+* REQUIRED
 
 ## juju.bootstrap(opts, cb)
 
@@ -93,7 +96,13 @@ Bootstrap the selected environment.
 Example:
 
 ```js
-my_juju.bootstrap(function(err) { if(err) { console.log('Oh no!', err); } else { console.log('Bootstrapped!'); } });
+my_juju.bootstrap(function(err) {
+	if(err) {
+		console.log('Oh no!', err);
+	} else {
+		console.log('Bootstrapped!');
+	}
+});
 ```
 
 ## juju.deploy()
