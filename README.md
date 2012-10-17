@@ -88,7 +88,7 @@ my_juju = new Juju('my-juju-environment', 'json', {"HOME": "/tmp/juju"});
 Bootstrap the selected environment.
 
 * OPTIONAL OBJECT `opts` - This is a key: pair of additional command line arguments for Juju.
-* OPTIONAL FUNCTION `cb` - Callback(error)
+* OPTIONAL FUNCTION `cb` - `Callback(error)`
 
 Example:
 
@@ -103,7 +103,7 @@ Deploy a new charm to the environment
 * REQUIRED STRING `charm` - Name of the charm
 * OPTIONAL STRING `service_name` - Name of the service to be deployed
 * OPTIONAL OBJECT `opts` - Extra command-line options for Juju
-* OPTOINAL FUNCTION `cb` - Callback(error)
+* OPTOINAL FUNCTION `cb` - `Callback(error)`
 
 Examples:
 
@@ -125,7 +125,7 @@ my_juju.deploy('mysql', function(err) {
 
 Destory the environment.
 
-* REQUIRED FUNCTION `cb` - Callback(error)
+* REQUIRED FUNCTION `cb` - `Callback(error)`
 
 Example:
 
@@ -145,7 +145,7 @@ Get the configuration options for a deployed service
 
 * REQUIRED STRING `service` - Name of the deployed service
 * OPTIONAL OBJECT `opts` - Extra command-line options for Juju
-* REQUIRED FUNCTION `cb` - Callback(error, results)
+* REQUIRED FUNCTION `cb` - `Callback(error, results)`
 
 Example:
 
@@ -164,7 +164,7 @@ my_juju.get('wordpress', function(err, data) {
 Expose a service
 
 * REQUIRED STRING `service` - Name of the deployed service
-* OPTIONAL FUNCTION `cb` - Callback(error)
+* OPTIONAL FUNCTION `cb` - `Callback(error)`
 
 Example:
 
@@ -197,7 +197,7 @@ my_juju.expose('wordpress', function(err) {
 The status of the Juju environment
 
 * OPTIONAL OBJECT `opts` - Extra command-line options for Juju
-* REQUIRED FUNCTION `cb` - Callback(error, results)
+* REQUIRED FUNCTION `cb` - `Callback(error, results)`
 
 Results are returned in a wrapper, in future versions this may become an 
 option to preserve the raw results. The wrapper look like this:
