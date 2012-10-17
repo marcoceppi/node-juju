@@ -56,7 +56,6 @@ hpcloud.deploy('wordpress', {n: 2}, function(err) {
   this.expose('wordpress');
 });
 ```
--`
 
 # API
 
@@ -73,14 +72,15 @@ Example:
 ```js
 var Juju = require('juju');
 
-my_juju = new Juju('my-juju-environment', 'yaml', {"HOME": "/tmp/juju"});
+my_juju = new Juju('my-juju-environment', 'json', {"HOME": "/tmp/juju"});
 ```
--`
 
 ## juju.add_relation()
 
 
+
 ## juju.add_unit()
+
 
 
 ## juju.bootstrap(opts, cb)
@@ -88,17 +88,153 @@ my_juju = new Juju('my-juju-environment', 'yaml', {"HOME": "/tmp/juju"});
 Bootstrap the selected environment.
 
 * OPTIONAL OBJECT `opts` - This is a key: pair of additional command line arguments for Juju.
-* OPTIONAL FUNCTION `cb` - Callback
+* OPTIONAL FUNCTION `cb` - Callback(error)
 
 Example:
 
 ```js
 my_juju.bootstrap(function(err) { if(err) { console.log('Oh no!', err); } else { console.log('Bootstrapped!'); } });
 ```
--`
 
-## juju.destroy(), juju.destroy_environment()
+## juju.deploy()
+
+Deploy a new charm to the environment
+
+* REQUIRED STRING `charm` - Name of the charm
+* OPTIONAL STRING `service_name` - Name of the service to be deployed
+* OPTIONAL OBJECT `opts` - Extra command-line options for Juju
+* OPTOINAL FUNCTION `cb` - Callback(error)
+
+Examples:
+
+```js
+my.juju.deploy('wordpress', 'my-blog', {'constraints': 'instance-type=f1.fake'}, function(err) {
+	if(err) {
+		console.log('Deploy failed', err);
+	}
+});
+
+my_juju.deploy('mysql', function(err) {
+	if(err) {
+		console.log('NO MYSQL FOR YOU', err);
+	}
+});
+```
+
+## juju.destroy(cb), juju.destroy_environment(cb)
+
+Destory the environment.
+
+* REQUIRED FUNCTION `cb` - Callback(error)
+
+Example:
+
+```js
+my_juju.destroy(function(err) {
+	if(err) {
+		console.log("This didn't work!", err);
+	} else {
+		console.log('The environment was destroyed');
+	}
+});
+```
+
+## juju.get(service, opts, cb)
+
+Get the configuration options for a deployed service
+
+* REQUIRED STRING `service` - Name of the deployed service
+* OPTIONAL OBJECT `opts` - Extra command-line options for Juju
+* REQUIRED FUNCTION `cb` - Callback(error, results)
+
+Example:
+
+```js
+my_juju.get('wordpress', function(err, data) {
+	if(err) {
+		console.log('Oh dear!', err);
+	} else {
+		console.log(data); // Data will be in the `format` from `new Juju()`
+	}
+});
+```
+
+## juju.expose(service, cb)
+
+Expose a service
+
+* REQUIRED STRING `service` - Name of the deployed service
+* OPTIONAL FUNCTION `cb` - Callback(error)
+
+Example:
+
+```js
+my_juju.expose('wordpress', function(err) {
+	if(err) {
+		console.log('Dun dun dunnn', err);
+	}
+});
+```
+
+## juju.layout()
 
 
-## juju.get()
 
+## juju.remove_relation()
+
+
+
+## juju.remove_unit()
+
+
+
+## juju.resolve(), juju.resolved()
+
+
+
+## juju.status(opts, cb)
+
+The status of the Juju environment
+
+* OPTIONAL OBJECT `opts` - Extra command-line options for Juju
+* REQUIRED FUNCTION `cb` - Callback(error, results)
+
+Results are returned in a wrapper, in future versions this may become an 
+option to preserve the raw results. The wrapper look like this:
+
+```js
+{
+	services: INT,
+	units: INT,
+	bootstrapped: BOOL,
+	data: JSON STRING
+}
+```
+
+Example:
+
+```js
+my_juju.status(function(err, data) {
+	if(err) {
+		console.log('Yikes!', err);
+	} else {
+		if(data.bootstrapped) {
+			console.log('We are strapped');
+			console.log(JSON.parse(data.data));
+		} else {
+			console.log('Not bootstrapped yet...');
+		}
+	}
+});
+```
+
+## juju.terminate_machine()
+
+
+
+## juju.unexpose()
+
+
+# Contributions
+
+Please make contributions in the form of the pull requests in the form of a rebased single commit per feature/bug.
