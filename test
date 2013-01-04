@@ -6,7 +6,7 @@ var jsc = require('jscoverage'),
 	YAML = require('yamljs'),
 	reporter = require('nodeunit').reporters.verbose;
 // rewrite require function
-require = jsc.require(module);
+require = jsc.mock(module);
 
 if( fs.existsSync('/tmp/node-juju-tests') )
 {
